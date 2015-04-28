@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+
+
+    <link rel="stylesheet" href="../public/style.css">
+  </head>
+  <body>
+  <div class="right_sidebar">
+
+
+    <ul id="messages">
+   
+    </ul>
+    <form action="">
+      <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+</div>
+
+    <script src="/socket.io/socket.io.js"></script>
+  
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+        <script src="/redirect.js"></script>
+      <script>
+  var socket = io();
+</script>
+
+    <script>
+    $('#messages').load(function(){
+      var user=$.get('http://localhost:3000/chatapp', {}, function(data){
+        console.log(data+":data");
+   });
+
+    });
+
+      // var userlist=[];
+      // userlist.push(user);
+      // console.log(userlist);
+      var socket = io();
+      socket.emit('user connected','<%= nickname%>');
+      socket.on('user connected',function(nickname){
+        $('#userlist').append($('<li>').text(nickname));
+        console.log('calling');
+      });
+      $('form').submit(function(){
+        socket.emit('chat message', '<%= nickname%>' + $('#m').val());
+        $('#m').val('');
+        return false;
+      });
+      socket.on('chat message', function(msg){
+        $('#messages').append($('<li>').text(msg));
+      });
+
+
+    </script>
+
+
+
+    <div class="left_sidebar">
+      
+ <ul id="userlist">
+      <% for(var i=0; i<user.length; i++) {%>
+ 
+
+ <li >
+       <%= user[i]%>
+     </li>
+   
+<% } 
+
+%></ul>
+    </div>
+  </body>
+</html>
