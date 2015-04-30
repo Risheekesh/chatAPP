@@ -1,76 +1,121 @@
 <!doctype html>
 <html>
+
   <head>
     <title>Socket.IO chat</title>
-
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
     <link rel="stylesheet" href="../public/style.css">
   </head>
+  
+
   <body>
-  <div class="right_sidebar">
+ 
+    <div class="left_sidebar"> 
+      <div class="left_sidebar_head"><h1>Welcome</h1></div>  
+      <ul id="messages" style="margin-top:5%;">  </ul>
+      <form action="">
+        <input id="m" autocomplete="off" /><button>Send</button>
+      </form>  
+      <div class="chatbox">
+        
+         
+      </div>  
+    </div>
 
 
-    <ul id="messages">
-   
-    </ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
-</div>
+    <div class="right_sidebar">  
+       <ul id="userlist">
+            <h3 class="glyphicon glyphicon-user online_users"> OnlineUsers </h3>
+            <% for(var i=0; i<user.length; i++) {%>
+              <li class="open_chat_window">
+                <p><%= user[i]%></p>
+              </li> <% }  %>
+      </ul>
+    </div> 
+
+    
+
+
 
     <script src="/socket.io/socket.io.js"></script>
-  
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-        <script src="/redirect.js"></script>
-      <script>
-  var socket = io();
-</script>
-
+    <script src="/redirect.js"></script>
     <script>
-    $('#messages').load(function(){
-      var user=$.get('http://localhost:3000/chatapp', {}, function(data){
-        console.log(data+":data");
-   });
-
-    });
-
-      // var userlist=[];
-      // userlist.push(user);
-      // console.log(userlist);
       var socket = io();
-      socket.emit('user connected','<%= nickname%>');
-      socket.on('user connected',function(nickname){
-        $('#userlist').append($('<li>').text(nickname));
-        console.log('calling');
-      });
-      $('form').submit(function(){
-        socket.emit('chat message', '<%= nickname%>' + $('#m').val());
-        $('#m').val('');
-        return false;
-      });
-      socket.on('chat message', function(msg){
-        $('#messages').append($('<li>').text(msg));
-      });
-
-
     </script>
 
+    <script>
+       
+
+          $('body').on('click', '#close_chat_window', function(event) {
+                                   $(this).parent().parent().parent().css('display', 'none');
+          });
+
+          $('body').on('click', '.open_chat_window', function(event) {
+               
+                $('.chatbox').append('<div class="chat_window"><div class="chat_window_head"><b>'+$(this).text()+'<a href="#" class="glyphicon glyphicon-remove right" id="close_chat_window"></a></b></div><ul id="chat_window_msg" >  </ul><input id="cm" autocomplete="off" class="input border_black"/></div>');
+                
+                $(this).$('.chat_window').css('display','block');
+
+            /* Act on the event */
+          });
 
 
-    <div class="left_sidebar">
-      
- <ul id="userlist">
-      <% for(var i=0; i<user.length; i++) {%>
- 
 
- <li >
-       <%= user[i]%>
-     </li>
-   
-<% } 
+          $('#messages').load(function(){
+            var user=$.get('http://localhost:3000/chatapp', {}, function(data){
+              console.log(data+":data");
+            });
 
-%></ul>
-    </div>
+          });
+
+          // var userlist=[];
+          // userlist.push(user);
+          // console.log(userlist);
+          var socket = io();
+          socket.emit('user connected','<%= nickname%>');
+          socket.on('user connected',function(nickname){
+            $('#userlist').append($('<li class="open_chat_window">').text(nickname));
+            console.log('calling');
+          });
+
+          $('form').submit(function(){
+            socket.emit('chat message', '<%= nickname%>  - ' + $('#m').val());
+            $('#m').val('');
+            return false;
+          });
+
+          // $('#cm').keypress(function(event) {
+          //     if(event.which == 13){
+          //       alert("work");
+          //       // socket.emit('wchat message', '<%= nickname%>  - ' + $('#cm').val());
+          //       // $('#cm').val('');
+          //       // return false;
+          //     }
+          // });
+            
+$("body").on('keypress', '#cm', function(event) {
+  if(event.which==13){
+console.log($('#cm').val());
+            socket.emit('wchat message', '<%= nickname%>  - ' + $('#cm').val());
+                $('#cm').val('');
+                return false;
+  }
+  /* Act on the event */
+});
+
+
+
+          socket.on('chat message', function(msg){
+            $('#messages').append($('<li>').text(msg));
+          });
+          socket.on('wchat message', function(msg){
+            console.log(msg);
+            $('#chat_window_msg').append($('<li>').text(msg));
+          });
+         
+    </script>
+
   </body>
 </html>
